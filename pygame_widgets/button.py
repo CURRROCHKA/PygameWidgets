@@ -75,7 +75,8 @@ class Button(WidgetBase):
         super().__init__(surface, x, y, width, height, is_sub_widget)
 
         self._text = text
-        self._image = image
+        self._image: pygame.Surface
+        self.image = image
         self._style = style if style is not None else ButtonStyle()
 
         self._text_surface: pygame.Surface
@@ -104,7 +105,7 @@ class Button(WidgetBase):
         return self._image
 
     @image.setter
-    def image(self, value: pygame.Surface | None) -> None:
+    def image(self, value: pygame.Surface | str | os.PathLike | None) -> None:
         if isinstance(value, (str, os.PathLike)):
             value = pygame.image.load(value).convert_alpha()
         self._image = value
@@ -134,9 +135,10 @@ class Button(WidgetBase):
         return rect
 
     def on_mouse_down(self, event: MouseEvent) -> None:
-        self._pressed = event.button == 1
-        if self._pressed:
-            self.pressed.emit()
+        if event.button != 1:
+            return
+        self._pressed = True
+        self.pressed.emit()
 
     def on_mouse_up(self, event: MouseEvent) -> None:
         if event.button != 1 or not self._pressed:
